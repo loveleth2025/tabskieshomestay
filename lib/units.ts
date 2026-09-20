@@ -58,7 +58,7 @@ export const UNITS: Record<UnitSlug, Unit> = {
     bedrooms: 1,
     bathrooms: 1,
     amenities: ["Wi-Fi", "Kitchenette", "Outdoor dining", "Family room"],
-    heroImage: "/units/lower-unit.jpg",
+    heroImage: "/units/lower-unit.png",
   },
   "whole-house": {
     slug: "whole-house",
@@ -77,7 +77,7 @@ export const UNITS: Record<UnitSlug, Unit> = {
       "Exclusive use of the property",
     ],
     combinesUnits: ["bamboo-unit", "lower-unit"],
-    heroImage: "/units/whole-house.jpg",
+    heroImage: "/units/whole-house.png",
   },
 };
 

@@ -24,7 +24,7 @@ export default function HomePage() {
 
       <div
         className="relative mt-5 flex h-44 items-end overflow-hidden rounded-2xl bg-teal-dark bg-cover bg-center p-5 sm:h-56"
-        style={publicFileExists("hero.jpg") ? { backgroundImage: "url(/hero.jpg)" } : undefined}
+        style={publicFileExists("hero.png") ? { backgroundImage: "url(/hero.png)" } : undefined}
       >
         <div className="absolute inset-0 bg-black/15" />
         <div className="relative font-display text-2xl font-medium leading-tight text-white sm:text-3xl">
