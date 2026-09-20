@@ -61,8 +61,7 @@ export function PayStep({
           <div className="my-4 h-px bg-line" />
 
           <div className="flex flex-col gap-3">
-            <Field label="GCash number" value="0917 123 4567" />
-            <Field label="Account name" value="Tabskie's Homestay and Travel" />
+            <Field label="Account name" value="Lo*****H B." />
             <div className="flex items-center justify-between rounded-lg bg-teal-soft px-3 py-2.5">
               <span className="text-[12.5px] text-ink/65">Amount due now</span>
               <span className="text-[15px] font-bold text-teal">
