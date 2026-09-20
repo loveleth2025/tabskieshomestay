@@ -122,7 +122,7 @@ export function PayStep({
             </p>
             <div className="h-px bg-line" />
             <Field label="Wise account name" value="Tabskie's Homestay and Travel" />
-            <Field label="Wise email" value="tabskieshomestay@example.com" />
+            <Field label="Wise email" value="loveraagas2017@gmail.com" />
             <div className="flex items-center justify-between rounded-lg bg-teal-soft px-3 py-2.5">
               <span className="text-[12.5px] text-ink/65">Amount due now</span>
               <span className="text-[15px] font-bold text-teal">
