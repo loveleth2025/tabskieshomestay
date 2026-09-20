@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { PaymentMethod } from "@/lib/types";
 import { formatPHP } from "@/lib/pricing";
 import { ChevronLeftIcon, UploadIcon } from "@/components/Icons";
@@ -61,7 +61,7 @@ export function PayStep({
           <div className="my-4 h-px bg-line" />
 
           <div className="flex flex-col gap-3">
-            <Field label="Account name" value="Lo*****H B." />
+            <Field label="Account name" value="Tabskies Homestay" />
             <div className="flex items-center justify-between rounded-lg bg-teal-soft px-3 py-2.5">
               <span className="text-[12.5px] text-ink/65">Amount due now</span>
               <span className="text-[15px] font-bold text-teal">
@@ -94,7 +94,7 @@ export function PayStep({
             </p>
             <div className="h-px bg-line" />
             <Field label="Bank" value="Philippine National Bank (PNB)" />
-            <Field label="Account name" value="Tabskie's Homestay and Travel" />
+            <Field label="Account name" value="Tabskies Homestay" />
             <div className="flex items-center justify-between rounded-lg bg-teal-soft px-3 py-2.5">
               <span className="text-[12.5px] text-ink/65">Amount due now</span>
               <span className="text-[15px] font-bold text-teal">
@@ -120,7 +120,7 @@ export function PayStep({
               Wise app
             </p>
             <div className="h-px bg-line" />
-            <Field label="Wise account name" value="Tabskie's Homestay and Travel" />
+            <Field label="Wise account name" value="Tabskies Homestay" />
             <Field label="Wise email" value="loveraagas2017@gmail.com" />
             <div className="flex items-center justify-between rounded-lg bg-teal-soft px-3 py-2.5">
               <span className="text-[12.5px] text-ink/65">Amount due now</span>
@@ -159,20 +159,23 @@ export function PayStep({
 }
 
 function QrBox({ src, alt, fileName }: { src: string; alt: string; fileName: string }) {
+  const [failed, setFailed] = useState(false);
   return (
     <div className="relative mx-auto flex h-40 w-40 items-center justify-center overflow-hidden rounded-2xl border border-dashed border-ink/25 bg-white">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={src}
-        alt={alt}
-        className="absolute inset-0 h-full w-full object-contain"
-        onError={(e) => {
-          e.currentTarget.style.display = "none";
-        }}
-      />
-      <span className="relative px-3 text-center text-[11px] text-ink/45">
-        [ add {fileName} to /public/payment ]
-      </span>
+      {!failed && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={src}
+          alt={alt}
+          className="absolute inset-0 h-full w-full object-contain"
+          onError={() => setFailed(true)}
+        />
+      )}
+      {failed && (
+        <span className="relative px-3 text-center text-[11px] text-ink/45">
+          [ add {fileName} to /public/payment ]
+        </span>
+      )}
     </div>
   );
 }
