@@ -89,7 +89,7 @@ export function PayStep({
       {paymentMethod === "bank" && (
         <div className="flex flex-col gap-3.5">
           <div className="flex flex-col gap-3.5 rounded-2xl border border-line bg-surface p-5">
-            <QrBox src="/payment/bank-qr.jpg" alt="Bank transfer QR code" fileName="bank-qr.jpg" />
+            <QrBox src="/payment/bank-qr.jpeg" alt="Bank transfer QR code" fileName="bank-qr.jpeg" />
             <p className="text-center text-[11.5px] text-ink/55">
               Scan with your banking app (InstaPay/PesoNet QR)
             </p>
@@ -115,7 +115,7 @@ export function PayStep({
       {paymentMethod === "wise" && (
         <div className="flex flex-col gap-3.5">
           <div className="flex flex-col gap-3.5 rounded-2xl border border-line bg-surface p-5">
-            <QrBox src="/payment/wise-qr.jpg" alt="Wise transfer QR code" fileName="wise-qr.jpg" />
+            <QrBox src="/payment/wise-qr.jpeg" alt="Wise transfer QR code" fileName="wise-qr.jpeg" />
             <p className="text-center text-[11.5px] text-ink/55">
               For international guests — scan or send to the details below in your
               Wise app
