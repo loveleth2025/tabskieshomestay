@@ -65,14 +65,14 @@ and `$binary.proofOfPayment` for the file):
 | `fullName` | text | |
 | `email` | text | |
 | `phone` | text | |
-| `trustedGuest` | text | `"true"` or `"false"` |
-| `paymentMethod` | text | `gcash`, `bank`, or `cash` |
+| `trustedGuest` | text | always `"false"` from the online form — Trusted Guest is now an admin-only flag staff set later in `/admin`, it no longer waives the online deposit or appears as a guest-facing choice |
+| `paymentMethod` | text | `gcash`, `bank`, or `wise` (all three are QR-based on the guest form; `cash` is only ever set by staff directly in `/admin`, never submitted here) |
 | `gcashReference` | text | present only when `paymentMethod` is `gcash` |
 | `ratePerNight` | text | numeric, PHP |
 | `subtotal` | text | numeric, PHP |
-| `deposit` | text | numeric, PHP (50%, or 0 if trusted) |
+| `deposit` | text | numeric, PHP (50% — always required online now) |
 | `balance` | text | numeric, PHP |
-| `proofOfPayment` | file | present only when `paymentMethod` is `bank` |
+| `proofOfPayment` | file | present only when `paymentMethod` is `bank` or `wise` |
 
 In n8n, this is exactly the shape your existing Reservation Management
 workflow needs to: generate the next `TBK-YYYY-NNNN` booking reference and
@@ -148,10 +148,13 @@ these exact names, and they'll show up automatically on the next deploy:
 
 | File | Shows up |
 |---|---|
-| `public/hero.jpg` | Home page banner |
+| `public/hero.png` | Home page banner |
 | `public/units/bamboo-unit.jpg` | Bamboo Unit — home page card + detail page |
-| `public/units/lower-unit.jpg` | Lower Unit — home page card + detail page |
-| `public/units/whole-house.jpg` | Whole House — home page card + detail page |
+| `public/units/lower-unit.png` | Lower Unit — home page card + detail page |
+| `public/units/whole-house.png` | Whole House — home page card + detail page |
+| `public/payment/gcash-qr.jpg` | GCash QR code on the payment step |
+| `public/payment/bank-qr.jpg` | Bank transfer QR code on the payment step |
+| `public/payment/wise-qr.jpg` | Wise transfer QR code on the payment step (international guests) |
 
 No code changes needed — just add the files, `git add`, commit, and push;
 Vercel redeploys automatically. Landscape photos around 1600×1000px work

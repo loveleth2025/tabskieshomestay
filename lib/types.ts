@@ -1,6 +1,9 @@
 import { UnitSlug } from "./units";
 
-export type PaymentMethod = "gcash" | "bank" | "cash";
+// "cash" stays valid for records entered directly by staff (walk-in guests
+// paying in person) — it's just no longer offered on the online form, which
+// only lets guests choose gcash, bank, or wise (all QR-based).
+export type PaymentMethod = "gcash" | "bank" | "wise" | "cash";
 
 // Payment statuses locked in for Tabskies OS (decisions.md):
 // Unpaid, Partial (Deposit Paid), Paid in Full, Refunded.

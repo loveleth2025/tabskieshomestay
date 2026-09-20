@@ -16,6 +16,7 @@ const BUSINESS_PHONE = process.env.NEXT_PUBLIC_BUSINESS_PHONE ?? "";
 const PAYMENT_METHOD_LABEL: Record<string, string> = {
   gcash: "GCash",
   bank: "Bank Transfer",
+  wise: "Wise Transfer",
   cash: "Cash",
 };
 
@@ -130,8 +131,12 @@ export function InvoiceClient() {
             </div>
             <div className="mt-1.5 text-[15px] font-semibold">{booking.fullName}</div>
             <div className="mt-0.5 text-xs leading-relaxed text-ink/60">
-              {booking.email}
-              <br />
+              {booking.email && (
+                <>
+                  {booking.email}
+                  <br />
+                </>
+              )}
               {booking.phone}
               <br />
               Guest ID {booking.guestId}
@@ -226,8 +231,8 @@ export function InvoiceClient() {
           </div>
           <p className="text-xs leading-relaxed text-ink/60">
             A 50% deposit confirms your reservation; the remaining balance is due on arrival.
-            We accept GCash, Bank Transfer, and Cash (for walk-in or trusted guests). Thank you
-            for booking direct with {BUSINESS_NAME}.
+            We accept GCash, Bank Transfer, and Wise Transfer (for international guests) online,
+            plus Cash for walk-in guests. Thank you for booking direct with {BUSINESS_NAME}.
           </p>
         </div>
       </div>

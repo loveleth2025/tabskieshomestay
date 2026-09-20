@@ -21,7 +21,6 @@ export function BookingWizard({ unit }: { unit: Unit }) {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [trustedGuest, setTrustedGuest] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("gcash");
 
   const [gcashReference, setGcashReference] = useState("");
@@ -32,7 +31,8 @@ export function BookingWizard({ unit }: { unit: Unit }) {
   const [result, setResult] = useState<BookingResult | null>(null);
 
   const nights = nightsBetween(checkIn, checkOut);
-  const price = computePrice(unit, nights, guests, trustedGuest);
+  // No more online deposit waiver — see DetailsStep.
+  const price = computePrice(unit, nights, guests, false);
 
   async function handleSubmit() {
     setSubmitting(true);
@@ -48,7 +48,7 @@ export function BookingWizard({ unit }: { unit: Unit }) {
       form.set("fullName", fullName);
       form.set("email", email);
       form.set("phone", phone);
-      form.set("trustedGuest", String(trustedGuest));
+      form.set("trustedGuest", "false");
       form.set("paymentMethod", paymentMethod);
       form.set("gcashReference", gcashReference);
       form.set("ratePerNight", String(unit.ratePerNight));
@@ -83,7 +83,7 @@ export function BookingWizard({ unit }: { unit: Unit }) {
   }
 
   if (step === "pay") {
-    const amountDueNow = trustedGuest ? price.subtotal : price.deposit;
+    const amountDueNow = price.deposit;
     return (
       <PayStep
         paymentMethod={paymentMethod}
@@ -110,13 +110,11 @@ export function BookingWizard({ unit }: { unit: Unit }) {
         fullName={fullName}
         email={email}
         phone={phone}
-        trustedGuest={trustedGuest}
         paymentMethod={paymentMethod}
         onChange={(patch) => {
           if (patch.fullName !== undefined) setFullName(patch.fullName);
           if (patch.email !== undefined) setEmail(patch.email);
           if (patch.phone !== undefined) setPhone(patch.phone);
-          if (patch.trustedGuest !== undefined) setTrustedGuest(patch.trustedGuest);
           if (patch.paymentMethod !== undefined) setPaymentMethod(patch.paymentMethod);
         }}
         onBack={() => setStep("dates")}

@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { PaymentMethod } from "@/lib/types";
 import { formatPHP } from "@/lib/pricing";
-import { ChevronLeftIcon, UploadIcon, InfoIcon } from "@/components/Icons";
+import { ChevronLeftIcon, UploadIcon } from "@/components/Icons";
 
 export function PayStep({
   paymentMethod,
@@ -32,16 +32,10 @@ export function PayStep({
 
   const canSubmit =
     !submitting &&
-    (paymentMethod === "cash" ||
-      (paymentMethod === "gcash" && gcashReference.trim().length > 3) ||
-      (paymentMethod === "bank" && !!proofFile));
+    ((paymentMethod === "gcash" && gcashReference.trim().length > 3) ||
+      ((paymentMethod === "bank" || paymentMethod === "wise") && !!proofFile));
 
-  const ctaLabel =
-    paymentMethod === "gcash"
-      ? "I've sent the payment"
-      : paymentMethod === "bank"
-      ? "Submit for verification"
-      : "Confirm booking";
+  const ctaLabel = paymentMethod === "gcash" ? "I've sent the payment" : "Submit for verification";
 
   return (
     <div className="mx-auto max-w-lg px-5 pb-28 pt-5 sm:px-0">
@@ -59,9 +53,7 @@ export function PayStep({
 
       {paymentMethod === "gcash" && (
         <div className="rounded-2xl border border-line bg-surface p-5">
-          <div className="mx-auto flex h-36 w-36 items-center justify-center rounded-2xl border border-dashed border-ink/25 bg-sandDark text-[11px] text-ink/45">
-            [ GCash QR code ]
-          </div>
+          <QrBox src="/payment/gcash-qr.jpg" alt="GCash QR code" fileName="gcash-qr.jpg" />
           <p className="mt-2.5 text-center text-[11.5px] text-ink/55">
             Scan in the GCash app
           </p>
@@ -96,10 +88,14 @@ export function PayStep({
 
       {paymentMethod === "bank" && (
         <div className="flex flex-col gap-3.5">
-          <div className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-5">
-            <Field label="Bank" value="BDO Unibank" />
+          <div className="flex flex-col gap-3.5 rounded-2xl border border-line bg-surface p-5">
+            <QrBox src="/payment/bank-qr.jpg" alt="Bank transfer QR code" fileName="bank-qr.jpg" />
+            <p className="text-center text-[11.5px] text-ink/55">
+              Scan with your banking app (InstaPay/PesoNet QR)
+            </p>
+            <div className="h-px bg-line" />
+            <Field label="Bank" value="Philippine National Bank (PNB)" />
             <Field label="Account name" value="Tabskie's Homestay and Travel" />
-            <Field label="Account number" value="0012 3456 7890" />
             <div className="flex items-center justify-between rounded-lg bg-teal-soft px-3 py-2.5">
               <span className="text-[12.5px] text-ink/65">Amount due now</span>
               <span className="text-[15px] font-bold text-teal">
@@ -108,49 +104,38 @@ export function PayStep({
             </div>
           </div>
 
-          <label
-            htmlFor="proof"
-            className="flex cursor-pointer flex-col items-center gap-2 rounded-2xl border border-dashed border-ink/25 p-6 text-center"
-          >
-            <UploadIcon width={22} height={22} className="text-teal" />
-            <span className="text-[12.5px] font-semibold">
-              {proofFile ? proofFile.name : "Upload proof of payment"}
-            </span>
-            <span className="text-[11px] text-ink/50">
-              Screenshot or photo of your receipt
-            </span>
-            <input
-              ref={fileInputRef}
-              id="proof"
-              type="file"
-              accept="image/*,.pdf"
-              className="hidden"
-              onChange={(e) => onProofFileChange(e.target.files?.[0] ?? null)}
-            />
-          </label>
+          <ProofUpload
+            fileInputRef={fileInputRef}
+            proofFile={proofFile}
+            onProofFileChange={onProofFileChange}
+          />
         </div>
       )}
 
-      {paymentMethod === "cash" && (
+      {paymentMethod === "wise" && (
         <div className="flex flex-col gap-3.5">
-          <div className="rounded-2xl border border-line bg-surface p-5">
-            <div className="flex gap-2.5">
-              <InfoIcon width={20} height={20} className="mt-0.5 flex-none text-teal" />
-              <div>
-                <div className="text-[14.5px] font-semibold">Pay in cash on arrival</div>
-                <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink/65">
-                  As a trusted guest, no deposit is needed online. Please prepare the
-                  full amount to hand to your host at check-in.
-                </p>
-              </div>
-            </div>
-            <div className="mt-4 flex items-center justify-between rounded-lg bg-teal-soft px-3 py-2.5">
-              <span className="text-[12.5px] text-ink/65">Amount due on arrival</span>
+          <div className="flex flex-col gap-3.5 rounded-2xl border border-line bg-surface p-5">
+            <QrBox src="/payment/wise-qr.jpg" alt="Wise transfer QR code" fileName="wise-qr.jpg" />
+            <p className="text-center text-[11.5px] text-ink/55">
+              For international guests — scan or send to the details below in your
+              Wise app
+            </p>
+            <div className="h-px bg-line" />
+            <Field label="Wise account name" value="Tabskie's Homestay and Travel" />
+            <Field label="Wise email" value="tabskieshomestay@example.com" />
+            <div className="flex items-center justify-between rounded-lg bg-teal-soft px-3 py-2.5">
+              <span className="text-[12.5px] text-ink/65">Amount due now</span>
               <span className="text-[15px] font-bold text-teal">
                 {formatPHP(amountDueNow)}
               </span>
             </div>
           </div>
+
+          <ProofUpload
+            fileInputRef={fileInputRef}
+            proofFile={proofFile}
+            onProofFileChange={onProofFileChange}
+          />
         </div>
       )}
 
@@ -171,6 +156,56 @@ export function PayStep({
         </button>
       </div>
     </div>
+  );
+}
+
+function QrBox({ src, alt, fileName }: { src: string; alt: string; fileName: string }) {
+  return (
+    <div className="relative mx-auto flex h-40 w-40 items-center justify-center overflow-hidden rounded-2xl border border-dashed border-ink/25 bg-white">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={src}
+        alt={alt}
+        className="absolute inset-0 h-full w-full object-contain"
+        onError={(e) => {
+          e.currentTarget.style.display = "none";
+        }}
+      />
+      <span className="relative px-3 text-center text-[11px] text-ink/45">
+        [ add {fileName} to /public/payment ]
+      </span>
+    </div>
+  );
+}
+
+function ProofUpload({
+  fileInputRef,
+  proofFile,
+  onProofFileChange,
+}: {
+  fileInputRef: React.RefObject<HTMLInputElement>;
+  proofFile: File | null;
+  onProofFileChange: (file: File | null) => void;
+}) {
+  return (
+    <label
+      htmlFor="proof"
+      className="flex cursor-pointer flex-col items-center gap-2 rounded-2xl border border-dashed border-ink/25 p-6 text-center"
+    >
+      <UploadIcon width={22} height={22} className="text-teal" />
+      <span className="text-[12.5px] font-semibold">
+        {proofFile ? proofFile.name : "Upload proof of payment"}
+      </span>
+      <span className="text-[11px] text-ink/50">Screenshot or photo of your receipt</span>
+      <input
+        ref={fileInputRef}
+        id="proof"
+        type="file"
+        accept="image/*,.pdf"
+        className="hidden"
+        onChange={(e) => onProofFileChange(e.target.files?.[0] ?? null)}
+      />
+    </label>
   );
 }
 

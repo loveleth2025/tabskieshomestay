@@ -29,10 +29,17 @@ function validate(fields: ReturnType<typeof readFields>): string | null {
   if (!fields.checkIn || !fields.checkOut) return "Missing dates.";
   if (!fields.guests || fields.guests < 1) return "Guest count must be at least 1.";
   if (!fields.fullName) return "Full name is required.";
-  if (!fields.email.includes("@")) return "A valid email is required.";
+  // Email is optional, but if the guest entered something, make sure it
+  // looks like an email rather than silently accepting garbage.
+  if (fields.email && !fields.email.includes("@")) {
+    return "That doesn't look like a valid email. Leave it blank if you'd rather not share one.";
+  }
   if (!fields.phone) return "Phone number is required.";
   if (fields.paymentMethod === "gcash" && fields.gcashReference.length < 4) {
     return "Enter your GCash reference number.";
+  }
+  if (fields.paymentMethod === "cash") {
+    return "Cash isn't available for online bookings — please choose GCash, Bank Transfer, or Wise.";
   }
   return null;
 }
@@ -85,15 +92,12 @@ export async function POST(request: Request) {
   if (validationError) {
     return NextResponse.json({ error: validationError }, { status: 422 });
   }
-  if (fields.paymentMethod === "cash" && !fields.trustedGuest) {
+  if (
+    (fields.paymentMethod === "bank" || fields.paymentMethod === "wise") &&
+    !(form.get("proofOfPayment") instanceof File)
+  ) {
     return NextResponse.json(
-      { error: "Cash is only available for walk-in or trusted guests." },
-      { status: 422 }
-    );
-  }
-  if (fields.paymentMethod === "bank" && !(form.get("proofOfPayment") instanceof File)) {
-    return NextResponse.json(
-      { error: "Please upload proof of payment for bank transfer." },
+      { error: "Please upload proof of payment." },
       { status: 422 }
     );
   }

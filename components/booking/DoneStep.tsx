@@ -20,8 +20,10 @@ export function DoneStep({ unit, result }: { unit: Unit; result: BookingResult }
         {result.status === "Confirmed" ? "Booking confirmed" : "Booking request received"}
       </h1>
       <p className="mt-1.5 max-w-sm text-center text-[13px] text-ink/60">
-        We&apos;ve sent your booking details to {result.email}. Your host will follow up
-        once payment is verified.
+        {result.email
+          ? `We've sent your booking details to ${result.email}. `
+          : ""}
+        Your host will follow up at {result.phone} once payment is verified.
       </p>
 
       {result.demo && (

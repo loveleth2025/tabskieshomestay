@@ -4,14 +4,13 @@ import type { ReactNode } from "react";
 import { Unit } from "@/lib/units";
 import { computePrice, nightsBetween } from "@/lib/pricing";
 import { PaymentMethod } from "@/lib/types";
-import { ChevronLeftIcon, GcashIcon, BankIcon, CashIcon } from "@/components/Icons";
+import { ChevronLeftIcon, GcashIcon, BankIcon } from "@/components/Icons";
 import { PriceSummary } from "./PriceSummary";
 
 interface DetailsPatch {
   fullName?: string;
   email?: string;
   phone?: string;
-  trustedGuest?: boolean;
   paymentMethod?: PaymentMethod;
 }
 
@@ -23,7 +22,6 @@ export function DetailsStep({
   fullName,
   email,
   phone,
-  trustedGuest,
   paymentMethod,
   onChange,
   onBack,
@@ -36,15 +34,19 @@ export function DetailsStep({
   fullName: string;
   email: string;
   phone: string;
-  trustedGuest: boolean;
   paymentMethod: PaymentMethod;
   onChange: (patch: DetailsPatch) => void;
   onBack: () => void;
   onContinue: () => void;
 }) {
   const nights = nightsBetween(checkIn, checkOut);
-  const price = computePrice(unit, nights, guests, trustedGuest);
-  const canContinue = fullName.trim().length > 1 && email.includes("@") && phone.trim().length > 4;
+  // Deposit is always required online now — there's no more Trusted Guest
+  // waiver on the guest-facing form (staff can still flag a reservation
+  // Trusted from /admin afterward, for their own records; it just doesn't
+  // change the price here).
+  const price = computePrice(unit, nights, guests, false);
+  const emailValid = email.trim().length === 0 || email.includes("@");
+  const canContinue = fullName.trim().length > 1 && emailValid && phone.trim().length > 4;
 
   return (
     <div className="mx-auto max-w-lg px-5 pb-28 pt-5 sm:px-0">
@@ -77,7 +79,9 @@ export function DetailsStep({
           />
         </label>
         <label className="block">
-          <span className="mb-1 block text-[11.5px] font-semibold text-ink/65">Email</span>
+          <span className="mb-1 block text-[11.5px] font-semibold text-ink/65">
+            Email <span className="font-normal text-ink/40">(optional)</span>
+          </span>
           <input
             type="email"
             value={email}
@@ -98,37 +102,13 @@ export function DetailsStep({
         </label>
       </div>
 
-      <label className="mt-4 flex cursor-pointer items-start gap-2.5 rounded-2xl border border-line bg-surface p-3.5">
-        <input
-          type="checkbox"
-          checked={trustedGuest}
-          onChange={(e) => {
-            const next = e.target.checked;
-            onChange({
-              trustedGuest: next,
-              // Cash is restricted to Walk-in or Trusted guests.
-              paymentMethod: !next && paymentMethod === "cash" ? "gcash" : paymentMethod,
-            });
-          }}
-          className="mt-0.5 h-4 w-4 flex-none accent-teal"
-        />
-        <span>
-          <span className="block text-[13px] font-semibold">
-            Trusted guest — deposit optional
-          </span>
-          <span className="mt-0.5 block text-xs text-ink/55">
-            Waives the deposit requirement for repeat or vetted guests.
-          </span>
-        </span>
-      </label>
-
       <h2 className="mb-2.5 mt-6 font-display text-base font-semibold">How will you pay?</h2>
       <div className="flex flex-col gap-2.5">
         <PaymentOption
           id="pay-gcash"
           icon={<GcashIcon width={19} height={19} className="text-teal" />}
           label="GCash"
-          helper="Instant confirmation"
+          helper="Scan the QR code, instant confirmation"
           checked={paymentMethod === "gcash"}
           onSelect={() => onChange({ paymentMethod: "gcash" })}
         />
@@ -136,30 +116,18 @@ export function DetailsStep({
           id="pay-bank"
           icon={<BankIcon width={19} height={19} className="text-teal" />}
           label="Bank Transfer"
-          helper="Confirmed once we receive proof of payment"
+          helper="Scan the QR code — confirmed once we receive proof of payment"
           checked={paymentMethod === "bank"}
           onSelect={() => onChange({ paymentMethod: "bank" })}
         />
-        {trustedGuest ? (
-          <PaymentOption
-            id="pay-cash"
-            icon={<CashIcon width={19} height={19} className="text-teal" />}
-            label="Cash"
-            helper="Pay in full upon arrival"
-            checked={paymentMethod === "cash"}
-            onSelect={() => onChange({ paymentMethod: "cash" })}
-          />
-        ) : (
-          <div className="flex items-center gap-3 rounded-2xl border border-dashed border-ink/20 bg-ink/[0.03] p-3.5">
-            <CashIcon width={19} height={19} className="flex-none text-ink/35" />
-            <span>
-              <span className="block text-[13px] font-semibold text-ink/45">Cash</span>
-              <span className="block text-[11.5px] text-ink/45">
-                Walk-in or trusted guests only
-              </span>
-            </span>
-          </div>
-        )}
+        <PaymentOption
+          id="pay-wise"
+          icon={<BankIcon width={19} height={19} className="text-teal" />}
+          label="Wise Transfer"
+          helper="For international guests — confirmed once we receive proof of payment"
+          checked={paymentMethod === "wise"}
+          onSelect={() => onChange({ paymentMethod: "wise" })}
+        />
       </div>
 
       <div className="mt-5">
@@ -172,7 +140,7 @@ export function DetailsStep({
           subtotal={price.subtotal}
           deposit={price.deposit}
           balance={price.balance}
-          trustedGuest={trustedGuest}
+          trustedGuest={false}
         />
       </div>
 
