@@ -21,18 +21,51 @@ export function formatPHP(amount: number): string {
 export interface PriceBreakdown {
   nights: number;
   ratePerNight: number;
+  baseSubtotal: number;
+  // Guests beyond the unit's baseGuests, and the per-person/per-night fee
+  // charged for them (0 for units with no extraGuestFee configured).
+  extraGuests: number;
+  extraGuestFeePerNight: number;
+  extraGuestTotal: number;
   subtotal: number;
   deposit: number;
   balance: number;
 }
 
+interface PriceableUnit {
+  ratePerNight: number;
+  baseGuests?: number;
+  extraGuestFee?: number;
+}
+
 export function computePrice(
-  ratePerNight: number,
+  unit: PriceableUnit,
   nights: number,
+  guests: number,
   trustedGuest: boolean
 ): PriceBreakdown {
-  const subtotal = ratePerNight * nights;
+  const baseSubtotal = unit.ratePerNight * nights;
+
+  const extraGuests =
+    unit.extraGuestFee && unit.baseGuests && guests > unit.baseGuests
+      ? guests - unit.baseGuests
+      : 0;
+  const extraGuestFeePerNight = extraGuests > 0 ? unit.extraGuestFee ?? 0 : 0;
+  const extraGuestTotal = extraGuests * extraGuestFeePerNight * nights;
+
+  const subtotal = baseSubtotal + extraGuestTotal;
   const deposit = trustedGuest ? 0 : Math.round(subtotal * DEPOSIT_RATE);
   const balance = subtotal - deposit;
-  return { nights, ratePerNight, subtotal, deposit, balance };
+
+  return {
+    nights,
+    ratePerNight: unit.ratePerNight,
+    baseSubtotal,
+    extraGuests,
+    extraGuestFeePerNight,
+    extraGuestTotal,
+    subtotal,
+    deposit,
+    balance,
+  };
 }

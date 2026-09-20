@@ -32,7 +32,7 @@ export function BookingWizard({ unit }: { unit: Unit }) {
   const [result, setResult] = useState<BookingResult | null>(null);
 
   const nights = nightsBetween(checkIn, checkOut);
-  const price = computePrice(unit.ratePerNight, nights, trustedGuest);
+  const price = computePrice(unit, nights, guests, trustedGuest);
 
   async function handleSubmit() {
     setSubmitting(true);

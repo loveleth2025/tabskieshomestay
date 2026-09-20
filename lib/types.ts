@@ -38,6 +38,12 @@ export interface BookingResult extends BookingDraft {
   paymentStatus: PaymentStatus;
   createdAt: string;
   demo?: boolean; // true when no webhook was configured and this is a mocked result
+  // Price snapshot at the moment of booking (includes any extra-guest
+  // surcharge already baked in) — optional so older stored records without
+  // it still render, falling back to a plain rate × nights calculation.
+  subtotal?: number;
+  deposit?: number;
+  balance?: number;
 }
 
 // A reservation as the internal dashboard sees it — the same shape as a

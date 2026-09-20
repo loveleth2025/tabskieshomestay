@@ -3,6 +3,9 @@ import { formatPHP } from "@/lib/pricing";
 export function PriceSummary({
   nights,
   ratePerNight,
+  extraGuests = 0,
+  extraGuestFeePerNight = 0,
+  extraGuestTotal = 0,
   subtotal,
   deposit,
   balance,
@@ -10,6 +13,9 @@ export function PriceSummary({
 }: {
   nights: number;
   ratePerNight: number;
+  extraGuests?: number;
+  extraGuestFeePerNight?: number;
+  extraGuestTotal?: number;
   subtotal: number;
   deposit: number;
   balance: number;
@@ -21,8 +27,17 @@ export function PriceSummary({
         <span>
           {formatPHP(ratePerNight)} × {nights} night{nights === 1 ? "" : "s"}
         </span>
-        <span>{formatPHP(subtotal)}</span>
+        <span>{formatPHP(ratePerNight * nights)}</span>
       </div>
+      {extraGuests > 0 && (
+        <div className="flex justify-between text-[13.5px] text-ink/65">
+          <span>
+            +{extraGuests} extra guest{extraGuests === 1 ? "" : "s"} ×{" "}
+            {formatPHP(extraGuestFeePerNight)} × {nights} night{nights === 1 ? "" : "s"}
+          </span>
+          <span>{formatPHP(extraGuestTotal)}</span>
+        </div>
+      )}
       <div className="h-px bg-line" />
       <div className="flex justify-between text-[13.5px] font-semibold">
         <span>Total</span>

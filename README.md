@@ -140,6 +140,24 @@ webhook, via two more optional env vars:
 Until those are set, `/admin` reads and writes the seeded in-memory demo
 data described above.
 
+## Adding real photos
+
+Right now every photo spot is just a labeled gray box — drop real image files
+into the `public/` folder (create the folders if they don't exist yet) using
+these exact names, and they'll show up automatically on the next deploy:
+
+| File | Shows up |
+|---|---|
+| `public/hero.jpg` | Home page banner |
+| `public/units/bamboo-unit.jpg` | Bamboo Unit — home page card + detail page |
+| `public/units/lower-unit.jpg` | Lower Unit — home page card + detail page |
+| `public/units/whole-house.jpg` | Whole House — home page card + detail page |
+
+No code changes needed — just add the files, `git add`, commit, and push;
+Vercel redeploys automatically. Landscape photos around 1600×1000px work
+best. If a file is missing, that spot just shows its plain background with
+no broken-image icon, so it's safe to add them one at a time.
+
 ## Deploying to Vercel with your own domain
 
 1. Push this project to a GitHub repo (same flow as Natalie's site).

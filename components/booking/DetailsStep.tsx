@@ -43,7 +43,7 @@ export function DetailsStep({
   onContinue: () => void;
 }) {
   const nights = nightsBetween(checkIn, checkOut);
-  const price = computePrice(unit.ratePerNight, nights, trustedGuest);
+  const price = computePrice(unit, nights, guests, trustedGuest);
   const canContinue = fullName.trim().length > 1 && email.includes("@") && phone.trim().length > 4;
 
   return (
@@ -166,6 +166,9 @@ export function DetailsStep({
         <PriceSummary
           nights={price.nights}
           ratePerNight={price.ratePerNight}
+          extraGuests={price.extraGuests}
+          extraGuestFeePerNight={price.extraGuestFeePerNight}
+          extraGuestTotal={price.extraGuestTotal}
           subtotal={price.subtotal}
           deposit={price.deposit}
           balance={price.balance}

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { MapPinIcon, SearchIcon, UsersIcon } from "@/components/Icons";
 import { UNIT_LIST } from "@/lib/units";
 import { formatPHP } from "@/lib/pricing";
+import { publicFileExists } from "@/lib/media";
 
 export default function HomePage() {
   return (
@@ -21,10 +22,11 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="relative mt-5 flex h-44 items-end overflow-hidden rounded-2xl bg-teal-dark p-5 sm:h-56">
-        <div className="absolute inset-0 flex items-center justify-center px-10 text-center text-xs text-white/25">
-          [ hero photo — Mantigue Island at golden hour ]
-        </div>
+      <div
+        className="relative mt-5 flex h-44 items-end overflow-hidden rounded-2xl bg-teal-dark bg-cover bg-center p-5 sm:h-56"
+        style={publicFileExists("hero.jpg") ? { backgroundImage: "url(/hero.jpg)" } : undefined}
+      >
+        <div className="absolute inset-0 bg-black/15" />
         <div className="relative font-display text-2xl font-medium leading-tight text-white sm:text-3xl">
           Your island escape
           <br />
@@ -62,8 +64,15 @@ export default function HomePage() {
             href={`/units/${unit.slug}`}
             className="block overflow-hidden rounded-2xl border border-line bg-surface transition hover:border-teal/40"
           >
-            <div className="flex h-28 items-center justify-center bg-[#DCE3D8] text-[11px] text-ink/40">
-              [ {unit.name} photo ]
+            <div
+              className="flex h-28 items-center justify-center bg-[#DCE3D8] bg-cover bg-center text-[11px] text-ink/40"
+              style={
+                publicFileExists(unit.heroImage)
+                  ? { backgroundImage: `url(${unit.heroImage})` }
+                  : undefined
+              }
+            >
+              {!publicFileExists(unit.heroImage) && <span>[ {unit.name} photo ]</span>}
             </div>
             <div className="p-4">
               <div className="flex items-center justify-between">

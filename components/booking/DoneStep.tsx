@@ -9,9 +9,7 @@ import { PaymentStatusPill } from "@/components/StatusPill";
 
 export function DoneStep({ unit, result }: { unit: Unit; result: BookingResult }) {
   const nights = nightsBetween(result.checkIn, result.checkOut);
-  const rate = unit.ratePerNight;
-  const subtotal = rate * nights;
-  const paid = subtotal - (result.paymentStatus === "Unpaid" ? subtotal : 0);
+  const subtotal = result.subtotal ?? unit.ratePerNight * nights;
 
   return (
     <div className="mx-auto flex max-w-lg flex-col items-center px-5 pb-16 pt-10">

@@ -115,6 +115,14 @@ export const HouseIcon = (props: SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+export const BulbIcon = (props: SVGProps<SVGSVGElement>) => (
+  <svg {...base(props)}>
+    <path d="M9 18h6" />
+    <path d="M10 22h4" />
+    <path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2Z" />
+  </svg>
+);
+
 export const GcashIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg {...base(props)}>
     <rect x="2" y="6" width="20" height="14" rx="2" />

@@ -75,9 +75,12 @@ export function InvoiceClient() {
   }
 
   const nights = nightsBetween(booking.checkIn, booking.checkOut);
-  const subtotal = unit.ratePerNight * nights;
-  const depositPaid = booking.trustedGuest ? 0 : Math.round(subtotal * 0.5);
-  const balance = subtotal - depositPaid;
+  const baseSubtotal = unit.ratePerNight * nights;
+  const subtotal = booking.subtotal ?? baseSubtotal;
+  const extraGuestTotal = Math.max(0, subtotal - baseSubtotal);
+  const depositPaid =
+    booking.deposit ?? (booking.trustedGuest ? 0 : Math.round(subtotal * 0.5));
+  const balance = booking.balance ?? subtotal - depositPaid;
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-8 sm:px-8">
@@ -176,9 +179,22 @@ export function InvoiceClient() {
               <td className="py-3.5 text-right text-[13.5px]">{nights}</td>
               <td className="py-3.5 text-right text-[13.5px]">{formatPHP(unit.ratePerNight)}</td>
               <td className="py-3.5 text-right text-[13.5px] font-semibold">
-                {formatPHP(subtotal)}
+                {formatPHP(baseSubtotal)}
               </td>
             </tr>
+            {extraGuestTotal > 0 && (
+              <tr className="border-b border-line">
+                <td className="py-3.5 text-[13.5px]">
+                  <div className="font-semibold">Extra guest fee</div>
+                  <div className="mt-0.5 text-xs text-ink/55">Beyond included guest count</div>
+                </td>
+                <td className="py-3.5 text-right text-[13.5px]">—</td>
+                <td className="py-3.5 text-right text-[13.5px]">—</td>
+                <td className="py-3.5 text-right text-[13.5px] font-semibold">
+                  {formatPHP(extraGuestTotal)}
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
 

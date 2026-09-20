@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getUnit, UNIT_LIST } from "@/lib/units";
 import { formatPHP } from "@/lib/pricing";
+import { publicFileExists } from "@/lib/media";
 import {
   ChevronLeftIcon,
   WifiIcon,
@@ -12,6 +13,8 @@ import {
   ShowerIcon,
   BeachIcon,
   StepFreeIcon,
+  HouseIcon,
+  BulbIcon,
 } from "@/components/Icons";
 
 const AMENITY_ICONS: Record<string, ComponentType<{ width?: number; height?: number; className?: string }>> = {
@@ -24,6 +27,9 @@ const AMENITY_ICONS: Record<string, ComponentType<{ width?: number; height?: num
   "Beach access": BeachIcon,
   "Step-free access": StepFreeIcon,
   "Exclusive use of the property": BeachIcon,
+  "Outdoor dining": KitchenIcon,
+  "Family room": HouseIcon,
+  "Solar-powered emergency lighting": BulbIcon,
 };
 
 export function generateStaticParams() {
@@ -36,8 +42,17 @@ export default function UnitDetailPage({ params }: { params: { slug: string } })
 
   return (
     <main className="mx-auto max-w-3xl pb-28 sm:px-8">
-      <div className="relative flex h-64 items-center justify-center bg-[#DCE3D8] text-xs text-ink/40 sm:h-80 sm:rounded-b-2xl">
-        [ {unit.name} photo gallery ]
+      <div
+        className="relative flex h-64 items-center justify-center bg-[#DCE3D8] bg-cover bg-center text-xs text-ink/40 sm:h-80 sm:rounded-b-2xl"
+        style={
+          publicFileExists(unit.heroImage)
+            ? { backgroundImage: `url(${unit.heroImage})` }
+            : undefined
+        }
+      >
+        {!publicFileExists(unit.heroImage) && (
+          <span>[ add {unit.heroImage} to /public to show a real photo ]</span>
+        )}
         <Link
           href="/"
           aria-label="Back"
@@ -66,6 +81,13 @@ export default function UnitDetailPage({ params }: { params: { slug: string } })
             <div className="mt-0.5 text-[10.5px] text-ink/55">Bathroom(s)</div>
           </div>
         </div>
+
+        {unit.extraGuestFee && unit.baseGuests && (
+          <p className="mt-3 text-[12px] text-ink/55">
+            Rate covers up to {unit.baseGuests} guests. Extra guests up to {unit.maxGuests}{" "}
+            total are {formatPHP(unit.extraGuestFee)}/person/night.
+          </p>
+        )}
 
         <p className="mt-4 text-[13.5px] leading-relaxed text-ink/75">
           {unit.description}

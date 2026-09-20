@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Unit, suggestsWholeHouse } from "@/lib/units";
+import { Unit, suggestsWholeHouse, MAX_STEPPER_GUESTS } from "@/lib/units";
 import { computePrice, nightsBetween } from "@/lib/pricing";
 import { AlertIcon, ChevronLeftIcon } from "@/components/Icons";
 import { GuestStepper } from "./GuestStepper";
@@ -23,7 +23,7 @@ export function DatesStep({
   onContinue: () => void;
 }) {
   const nights = nightsBetween(checkIn, checkOut);
-  const price = computePrice(unit.ratePerNight, nights, false);
+  const price = computePrice(unit, nights, guests, false);
   const overCapacity = suggestsWholeHouse(unit, guests);
   const canContinue = nights > 0 && guests >= 1;
 
@@ -77,10 +77,16 @@ export function DatesStep({
         <div>
           <div className="text-[14.5px] font-semibold">Guests</div>
           <div className="mt-0.5 text-[11.5px] text-ink/50">
-            Max {unit.maxGuests} for {unit.name}
+            {unit.extraGuestFee
+              ? `${unit.baseGuests} included, up to ${unit.maxGuests} with extra guest fee`
+              : `Max ${unit.maxGuests} for ${unit.name}`}
           </div>
         </div>
-        <GuestStepper value={guests} onChange={(next) => onChange({ guests: next })} />
+        <GuestStepper
+          value={guests}
+          onChange={(next) => onChange({ guests: next })}
+          max={MAX_STEPPER_GUESTS}
+        />
       </div>
 
       {overCapacity && (
@@ -102,6 +108,9 @@ export function DatesStep({
           <PriceSummary
             nights={price.nights}
             ratePerNight={price.ratePerNight}
+            extraGuests={price.extraGuests}
+            extraGuestFeePerNight={price.extraGuestFeePerNight}
+            extraGuestTotal={price.extraGuestTotal}
             subtotal={price.subtotal}
             deposit={price.deposit}
             balance={price.balance}

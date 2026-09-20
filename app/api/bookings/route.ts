@@ -65,6 +65,9 @@ function buildDemoResult(fields: ReturnType<typeof readFields>): BookingResult {
     status: "Draft",
     paymentStatus,
     createdAt: new Date().toISOString(),
+    subtotal: fields.subtotal,
+    deposit: fields.deposit,
+    balance: fields.balance,
     demo: true,
   };
 }
@@ -159,6 +162,9 @@ export async function POST(request: Request) {
     status: data.status ?? "Draft",
     paymentStatus: data.paymentStatus ?? "Unpaid",
     createdAt: data.createdAt ?? new Date().toISOString(),
+    subtotal: data.subtotal ?? fields.subtotal,
+    deposit: data.deposit ?? fields.deposit,
+    balance: data.balance ?? fields.balance,
   };
 
   return NextResponse.json(result);
