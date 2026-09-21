@@ -1,4 +1,3 @@
-"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -38,7 +37,7 @@ export function ReservationsClient() {
   const filtered = useMemo(() => {
     if (!reservations) return [];
     return reservations.filter((r) => {
-            if (filter !== "all" && (r.status ?? "").toLowerCase() !== filter) return false;
+      if (filter !== "all" && (r.status ?? "").toLowerCase() !== filter) return false;
       if (query) {
         const q = query.toLowerCase();
         return (
@@ -125,7 +124,7 @@ export function ReservationsClient() {
                 <ReservationStatusPill status={r.status} />
               </div>
               <div className="mt-1 text-xs text-ink/55">
-                                {UNITS[r.unitSlug]?.name ?? r.unitSlug ?? "Unknown unit"} ·{" "}
+                {UNITS[r.unitSlug]?.name ?? r.unitSlug ?? "Unknown unit"} ·{" "}
                 {formatDateRange(r.checkIn, r.checkOut)}
               </div>
               <div className="mt-2 flex items-center justify-between">
@@ -155,7 +154,7 @@ export function ReservationsClient() {
             </div>
 
             <div className="mt-6 grid grid-cols-3 gap-3.5">
-                            <Field
+              <Field
                 label="Unit"
                 value={UNITS[selected.unitSlug]?.name ?? selected.unitSlug ?? "Unknown unit"}
               />
