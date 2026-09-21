@@ -63,6 +63,7 @@ export default function CalendarPage() {
 
     for (const r of reservations) {
       if (r.paymentStatus === "Refunded") continue;
+      if (!map[r.unitSlug]) continue; // unrecognized/mismatched unit slug from the data source
       const pos = layout(r.checkIn, r.checkOut, windowStart);
       if (!pos) continue;
       map[r.unitSlug].push({
@@ -74,6 +75,7 @@ export default function CalendarPage() {
     }
 
     for (const b of blocked) {
+      if (!map[b.unitSlug]) continue;
       const pos = layout(b.checkIn, b.checkOut, windowStart);
       if (!pos) continue;
       map[b.unitSlug].push({ ...pos, label: "Blocked", kind: "blocked" });
@@ -163,7 +165,9 @@ export default function CalendarPage() {
                   href={`/admin/reservations?id=${r.id}`}
                   className="grid grid-cols-[1.3fr_1.3fr_1.4fr_1fr] items-center border-b border-black/5 px-5 py-3.5 text-[13.5px] hover:bg-sand/60"
                 >
-                  <span className="font-semibold">{UNITS[r.unitSlug].name}</span>
+                  <span className="font-semibold">
+                    {UNITS[r.unitSlug]?.name ?? r.unitSlug ?? "Unknown unit"}
+                  </span>
                   <span>{r.fullName}</span>
                   <span className="text-ink/60">{formatDateRange(r.checkIn, r.checkOut)}</span>
                   <ReservationStatusPill status={r.status} />
