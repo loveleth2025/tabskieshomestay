@@ -38,10 +38,13 @@ export function ReservationsClient() {
   const filtered = useMemo(() => {
     if (!reservations) return [];
     return reservations.filter((r) => {
-      if (filter !== "all" && r.status.toLowerCase() !== filter) return false;
+            if (filter !== "all" && (r.status ?? "").toLowerCase() !== filter) return false;
       if (query) {
         const q = query.toLowerCase();
-        return r.fullName.toLowerCase().includes(q) || r.bookingRef.toLowerCase().includes(q);
+        return (
+          (r.fullName ?? "").toLowerCase().includes(q) ||
+          (r.bookingRef ?? "").toLowerCase().includes(q)
+        );
       }
       return true;
     });
