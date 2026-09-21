@@ -155,7 +155,10 @@ export function ReservationsClient() {
             </div>
 
             <div className="mt-6 grid grid-cols-3 gap-3.5">
-              <Field label="Unit" value={UNITS[selected.unitSlug].name} />
+                            <Field
+                label="Unit"
+                value={UNITS[selected.unitSlug]?.name ?? selected.unitSlug ?? "Unknown unit"}
+              />
               <Field label="Dates" value={formatDateRange(selected.checkIn, selected.checkOut)} />
               <Field label="Guests" value={String(selected.guests)} />
             </div>
