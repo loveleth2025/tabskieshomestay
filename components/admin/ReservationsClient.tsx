@@ -125,7 +125,8 @@ export function ReservationsClient() {
                 <ReservationStatusPill status={r.status} />
               </div>
               <div className="mt-1 text-xs text-ink/55">
-                {UNITS[r.unitSlug].name} · {formatDateRange(r.checkIn, r.checkOut)}
+                                {UNITS[r.unitSlug]?.name ?? r.unitSlug ?? "Unknown unit"} ·{" "}
+                {formatDateRange(r.checkIn, r.checkOut)}
               </div>
               <div className="mt-2 flex items-center justify-between">
                 <span className="text-[11px] text-ink/45">{r.bookingRef}</span>
