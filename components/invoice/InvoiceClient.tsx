@@ -100,7 +100,7 @@ export function InvoiceClient() {
           <div>
             <div className="font-display text-2xl font-semibold italic">{BUSINESS_NAME}</div>
             <div className="mt-2 text-xs leading-relaxed text-ink/60">
-              Bonbon, Mahinog, Camiguin, Philippines
+              Poblacion, Catarman, Camiguin, Philippines
               {BUSINESS_EMAIL && (
                 <>
                   <br />
