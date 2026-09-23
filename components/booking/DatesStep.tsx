@@ -96,7 +96,7 @@ export function DatesStep({
       const dateStr = formatLocalDate(current);
       const isUnavailable = unavailableDates.includes(dateStr);
       console.log("Checking date:", dateStr, "- Is unavailable?", isUnavailable);
-      
+
       if (isUnavailable) {
         console.log("❌ FOUND UNAVAILABLE DATE:", dateStr);
         return true;
