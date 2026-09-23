@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Unit, suggestsWholeHouse, MAX_STEPPER_GUESTS } from "@/lib/units";
 import { computePrice, nightsBetween } from "@/lib/pricing";
@@ -22,10 +23,71 @@ export function DatesStep({
   onChange: (patch: Partial<{ checkIn: string; checkOut: string; guests: number }>) => void;
   onContinue: () => void;
 }) {
+  const [unavailableDates, setUnavailableDates] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch unavailable dates from Airbnb calendar
+  useEffect(() => {
+    async function fetchUnavailableDates() {
+      try {
+        setLoading(true);
+        const res = await fetch(`/api/bookings/${unit.slug}/unavailable-dates`);
+        if (!res.ok) throw new Error("Failed to fetch availability");
+        const data = await res.json();
+        setUnavailableDates(data.unavailableDates || []);
+      } catch (err) {
+        console.error("Error fetching unavailable dates:", err);
+        setError("Could not load availability calendar");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchUnavailableDates();
+  }, [unit.slug]);
+
+  // Check if a date is unavailable
+  const isDateUnavailable = (dateStr: string): boolean => {
+    return unavailableDates.includes(dateStr);
+  };
+
+  // Check if date is in the past
+  const isDateInPast = (dateStr: string): boolean => {
+    return new Date(dateStr) < new Date();
+  };
+
+  // Disable date input if it's unavailable or in the past
+  const isCheckInDisabled = (dateStr: string): boolean => {
+    return isDateUnavailable(dateStr) || isDateInPast(dateStr);
+  };
+
+  const isCheckOutDisabled = (dateStr: string): boolean => {
+    return isDateUnavailable(dateStr) || isDateInPast(dateStr) || !checkIn || dateStr <= checkIn;
+  };
+
+  // Validate that selected dates don't include unavailable dates
+  const hasUnavailableDateInRange = (): boolean => {
+    if (!checkIn || !checkOut) return false;
+
+    const start = new Date(checkIn);
+    const end = new Date(checkOut);
+    const current = new Date(start);
+
+    while (current < end) {
+      const dateStr = current.toISOString().split('T')[0];
+      if (isDateUnavailable(dateStr)) return true;
+      current.setDate(current.getDate() + 1);
+    }
+
+    return false;
+  };
+
   const nights = nightsBetween(checkIn, checkOut);
   const price = computePrice(unit, nights, guests, false);
   const overCapacity = suggestsWholeHouse(unit, guests);
-  const canContinue = nights > 0 && guests >= 1;
+  const canContinue = nights > 0 && guests >= 1 && !hasUnavailableDateInRange();
+  const hasInvalidRange = checkIn && checkOut && hasUnavailableDateInRange();
 
   return (
     <div className="mx-auto max-w-lg px-5 pb-28 pt-5 sm:px-0">
@@ -43,6 +105,12 @@ export function DatesStep({
         </div>
       </div>
 
+      {error && (
+        <div className="mb-4 rounded-2xl border border-clay bg-clay/10 p-3.5">
+          <p className="text-sm text-clay">{error}</p>
+        </div>
+      )}
+
       <div className="rounded-2xl border border-line bg-surface p-4">
         <div className="grid grid-cols-2 gap-3">
           <label className="block">
@@ -53,7 +121,8 @@ export function DatesStep({
               type="date"
               value={checkIn}
               onChange={(e) => onChange({ checkIn: e.target.value })}
-              className="w-full rounded-lg border border-ink/15 bg-white px-2.5 py-2 text-[13.5px]"
+              disabled={loading}
+              className="w-full rounded-lg border border-ink/15 bg-white px-2.5 py-2 text-[13.5px] disabled:opacity-50"
             />
           </label>
           <label className="block">
@@ -64,12 +133,24 @@ export function DatesStep({
               type="date"
               value={checkOut}
               onChange={(e) => onChange({ checkOut: e.target.value })}
-              className="w-full rounded-lg border border-ink/15 bg-white px-2.5 py-2 text-[13.5px]"
+              disabled={loading || !checkIn}
+              className="w-full rounded-lg border border-ink/15 bg-white px-2.5 py-2 text-[13.5px] disabled:opacity-50"
             />
           </label>
         </div>
+
+        {loading && (
+          <p className="mt-2 text-xs text-ink/50">Loading availability...</p>
+        )}
+
         {checkIn && checkOut && nights <= 0 && (
           <p className="mt-2 text-xs text-clay">Check-out must be after check-in.</p>
+        )}
+
+        {hasInvalidRange && (
+          <p className="mt-2 text-xs text-clay">
+            ⚠️ Some dates in your range are not available. Please select different dates.
+          </p>
         )}
       </div>
 
