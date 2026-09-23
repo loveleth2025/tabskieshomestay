@@ -34,25 +34,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="mt-4 flex items-center gap-3 rounded-2xl border border-line bg-surface px-4 py-3.5">
-        <div className="flex-1">
-          <div className="text-[10px] uppercase tracking-wider text-ink/50">
-            Check-in
-          </div>
-          <div className="text-sm font-medium">Add date</div>
-        </div>
-        <div className="h-8 w-px bg-line" />
-        <div className="flex-1 text-right">
-          <div className="text-[10px] uppercase tracking-wider text-ink/50">
-            Check-out
-          </div>
-          <div className="text-sm font-medium">Add date</div>
-        </div>
-        <div className="flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-teal text-white">
-          <SearchIcon width={16} height={16} />
-        </div>
-      </div>
-
       <div className="mb-3 mt-7 flex items-baseline justify-between">
         <h2 className="font-display text-lg font-semibold">Choose your stay</h2>
       </div>
