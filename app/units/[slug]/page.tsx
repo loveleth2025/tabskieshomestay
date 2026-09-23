@@ -40,6 +40,8 @@ export default function UnitDetailPage({ params }: { params: { slug: string } })
   const unit = getUnit(params.slug);
   if (!unit) return notFound();
 
+  const galleryPhotos = (unit.gallery ?? []).filter(publicFileExists);
+
   return (
     <main className="mx-auto max-w-3xl pb-28 sm:px-8">
       <div
@@ -61,6 +63,18 @@ export default function UnitDetailPage({ params }: { params: { slug: string } })
           <ChevronLeftIcon width={17} height={17} className="text-ink" />
         </Link>
       </div>
+
+      {galleryPhotos.length > 0 && (
+        <div className="flex snap-x snap-mandatory gap-2.5 overflow-x-auto px-5 pt-3.5 sm:px-0 sm:pt-4">
+          {galleryPhotos.map((photo) => (
+            <div
+              key={photo}
+              className="h-24 w-32 flex-none snap-start overflow-hidden rounded-xl bg-[#DCE3D8] bg-cover bg-center sm:h-28 sm:w-36"
+              style={{ backgroundImage: `url(${photo})` }}
+            />
+          ))}
+        </div>
+      )}
 
       <div className="px-5 pt-5 sm:px-0">
         <h1 className="font-display text-2xl font-semibold sm:text-3xl">
