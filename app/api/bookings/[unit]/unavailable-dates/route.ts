@@ -23,7 +23,7 @@ function parseICalendar(icsContent: string): Array<{ start: Date; end: Date }> {
       // Parse date string (format: YYYYMMDD or YYYYMMDDTHHMMSSZ)
       const parseDate = (dateStr: string): Date => {
         if (dateStr.length === 8) {
-          // Format: YYYYMMDD (all-day event)
+          // Format: YYYYMMDD (all-day event) - parse as local date
           const year = parseInt(dateStr.substring(0, 4));
           const month = parseInt(dateStr.substring(4, 6)) - 1;
           const day = parseInt(dateStr.substring(6, 8));
@@ -50,7 +50,7 @@ function parseICalendar(icsContent: string): Array<{ start: Date; end: Date }> {
   return events;
 }
 
-// Convert date range to array of date strings (YYYY-MM-DD)
+// Convert date range to array of date strings (YYYY-MM-DD) using local timezone
 function getBookedDateStrings(events: Array<{ start: Date; end: Date }>): string[] {
   const bookedDates = new Set<string>();
 
@@ -58,7 +58,12 @@ function getBookedDateStrings(events: Array<{ start: Date; end: Date }>): string
     const current = new Date(event.start);
     // Include all dates from start to end (exclusive of end)
     while (current < event.end) {
-      const dateStr = current.toISOString().split('T')[0];
+      // Format using local timezone, not UTC
+      const year = current.getFullYear();
+      const month = String(current.getMonth() + 1).padStart(2, '0');
+      const day = String(current.getDate()).padStart(2, '0');
+      const dateStr = `${year}-${month}-${day}`;
+
       bookedDates.add(dateStr);
       current.setDate(current.getDate() + 1);
     }
