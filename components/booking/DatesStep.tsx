@@ -44,6 +44,7 @@ export function DatesStep({
 
         const data = await response.json();
         console.log("Received unavailable dates:", data);
+        console.log("Unavailable dates array:", data.unavailableDates);
 
         setUnavailableDates(data.unavailableDates || []);
         setError(null);
@@ -59,21 +60,35 @@ export function DatesStep({
   }, [unit.slug]);
 
   const hasUnavailableDateInRange = (): boolean => {
-    if (!checkIn || !checkOut) return false;
+    if (!checkIn || !checkOut) {
+      console.log("Skipping validation: checkIn or checkOut missing");
+      return false;
+    }
+
+    console.log("=== VALIDATION CHECK ===");
+    console.log("checkIn:", checkIn);
+    console.log("checkOut:", checkOut);
+    console.log("unavailableDates array:", unavailableDates);
 
     const start = new Date(checkIn);
     const end = new Date(checkOut);
     const current = new Date(start);
 
+    console.log("Start date:", start);
+    console.log("End date:", end);
+
     while (current < end) {
       const dateStr = current.toISOString().split('T')[0];
+      console.log("Checking date:", dateStr, "- Is unavailable?", unavailableDates.includes(dateStr));
+      
       if (unavailableDates.includes(dateStr)) {
-        console.log("Found unavailable date:", dateStr);
+        console.log("❌ FOUND UNAVAILABLE DATE:", dateStr);
         return true;
       }
       current.setDate(current.getDate() + 1);
     }
 
+    console.log("✅ All dates are available");
     return false;
   };
 
@@ -82,6 +97,8 @@ export function DatesStep({
   const overCapacity = suggestsWholeHouse(unit, guests);
   const hasInvalidRange = checkIn && checkOut && hasUnavailableDateInRange();
   const canContinue = nights > 0 && guests >= 1 && !hasInvalidRange;
+
+  console.log("Render state - nights:", nights, "hasInvalidRange:", hasInvalidRange, "canContinue:", canContinue);
 
   return (
     <div className="mx-auto max-w-lg px-5 pb-28 pt-5 sm:px-0">
