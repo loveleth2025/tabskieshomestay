@@ -5,51 +5,6 @@ import { UNIT_CALENDARS } from '@/lib/calendar-config';
 function parseICalendar(icsContent: string): Array<{ start: Date; end: Date }> {
   const events: Array<{ start: Date; end: Date }> = [];
 
-  const eventRegex = /BEGIN:VEVENT([\s\S]*?)END:VEVENT/g;
-  let match;
-
-  while ((match = eventRegex.exec(icsContent)) !== null) {
-    const eventContent = match[1];
-
-    const startMatch = eventContent.match(/DTSTART(?:;[^:]*)?:([^\r\n]+)/);
-    const endMatch = eventContent.match(/DTEND(?:;[^:]*)?:([^\r\n]+)/);
-
-    if (startMatch && endMatch) {
-      const startStr = startMatch[1].trim();
-      const endStr = endMatch[1].trim();
-
-      console.log("DEBUG: Found event - startStr:", startStr, "endStr:", endStr);
-
-      const parseDate = (dateStr: string): Date => {
-        if (dateStr.length === 8) {
-          const year = parseInt(dateStr.substring(0, 4));
-          const month = parseInt(dateStr.substring(4, 6)) - 1;
-          const day = parseInt(dateStr.substring(6, 8));
-          const date = new Date(year, month, day);
-          console.log("DEBUG: Parsed date", dateStr, "→", date);
-          return date;
-        } else {
-          const year = parseInt(dateStr.substring(0, 4));
-          const month = parseInt(dateStr.substring(4, 6)) - 1;
-          const day = parseInt(dateStr.substring(6, 8));
-          const hour = parseInt(dateStr.substring(9, 11));
-          const minute = parseInt(dateStr.substring(11, 13));
-          const second = parseInt(dateStr.substring(13, 15));
-          return new Date(year, month, day, hour, minute, second);
-        }
-      };
-
-      events.push({
-        start: parseDate(startStr),
-        end: parseDate(endStr),
-      });
-    }
-  }
-
-  console.log("DEBUG: Total events parsed:", events.length);
-  return events;
-}
-
   // Find all VEVENT blocks
   const eventRegex = /BEGIN:VEVENT([\s\S]*?)END:VEVENT/g;
   let match;
@@ -65,6 +20,8 @@ function parseICalendar(icsContent: string): Array<{ start: Date; end: Date }> {
       const startStr = startMatch[1].trim();
       const endStr = endMatch[1].trim();
 
+      console.log("DEBUG: Found event - startStr:", startStr, "endStr:", endStr);
+
       // Parse date string (format: YYYYMMDD or YYYYMMDDTHHMMSSZ)
       const parseDate = (dateStr: string): Date => {
         if (dateStr.length === 8) {
@@ -72,7 +29,9 @@ function parseICalendar(icsContent: string): Array<{ start: Date; end: Date }> {
           const year = parseInt(dateStr.substring(0, 4));
           const month = parseInt(dateStr.substring(4, 6)) - 1;
           const day = parseInt(dateStr.substring(6, 8));
-          return new Date(year, month, day);
+          const date = new Date(year, month, day);
+          console.log("DEBUG: Parsed date", dateStr, "→", date);
+          return date;
         } else {
           // Format: YYYYMMDDTHHMMSSZ
           const year = parseInt(dateStr.substring(0, 4));
@@ -92,6 +51,7 @@ function parseICalendar(icsContent: string): Array<{ start: Date; end: Date }> {
     }
   }
 
+  console.log("DEBUG: Total events parsed:", events.length);
   return events;
 }
 
