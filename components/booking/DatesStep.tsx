@@ -8,6 +8,20 @@ import { AlertIcon, ChevronLeftIcon } from "@/components/Icons";
 import { GuestStepper } from "./GuestStepper";
 import { PriceSummary } from "./PriceSummary";
 
+// Helper function to parse date string (YYYY-MM-DD) in local timezone
+function parseLocalDate(dateStr: string): Date {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+
+// Helper function to format date to YYYY-MM-DD in local timezone
+function formatLocalDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 export function DatesStep({
   unit,
   checkIn,
@@ -27,67 +41,80 @@ export function DatesStep({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch unavailable dates from Airbnb calendar
   useEffect(() => {
-    async function fetchUnavailableDates() {
+    console.log("DatesStep mounted, fetching unavailable dates for:", unit.slug);
+
+    const fetchDates = async () => {
       try {
-        setLoading(true);
-        const res = await fetch(`/api/bookings/${unit.slug}/unavailable-dates`);
-        if (!res.ok) throw new Error("Failed to fetch availability");
-        const data = await res.json();
+        const url = `/api/bookings/${unit.slug}/unavailable-dates`;
+        console.log("Fetching from:", url);
+
+        const response = await fetch(url);
+        console.log("Response status:", response.status);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Received unavailable dates:", data);
+        console.log("Unavailable dates array:", data.unavailableDates);
+
         setUnavailableDates(data.unavailableDates || []);
+        setError(null);
       } catch (err) {
-        console.error("Error fetching unavailable dates:", err);
-        setError("Could not load availability calendar");
+        console.error("Failed to fetch unavailable dates:", err);
+        setError("Could not load calendar availability");
       } finally {
         setLoading(false);
       }
-    }
+    };
 
-    fetchUnavailableDates();
+    fetchDates();
   }, [unit.slug]);
 
-  // Check if a date is unavailable
-  const isDateUnavailable = (dateStr: string): boolean => {
-    return unavailableDates.includes(dateStr);
-  };
-
-  // Check if date is in the past
-  const isDateInPast = (dateStr: string): boolean => {
-    return new Date(dateStr) < new Date();
-  };
-
-  // Disable date input if it's unavailable or in the past
-  const isCheckInDisabled = (dateStr: string): boolean => {
-    return isDateUnavailable(dateStr) || isDateInPast(dateStr);
-  };
-
-  const isCheckOutDisabled = (dateStr: string): boolean => {
-    return isDateUnavailable(dateStr) || isDateInPast(dateStr) || !checkIn || dateStr <= checkIn;
-  };
-
-  // Validate that selected dates don't include unavailable dates
   const hasUnavailableDateInRange = (): boolean => {
-    if (!checkIn || !checkOut) return false;
+    if (!checkIn || !checkOut) {
+      console.log("Skipping validation: checkIn or checkOut missing");
+      return false;
+    }
 
-    const start = new Date(checkIn);
-    const end = new Date(checkOut);
+    console.log("=== VALIDATION CHECK ===");
+    console.log("checkIn:", checkIn);
+    console.log("checkOut:", checkOut);
+    console.log("unavailableDates array:", unavailableDates);
+
+    // Parse dates in local timezone
+    const start = parseLocalDate(checkIn);
+    const end = parseLocalDate(checkOut);
     const current = new Date(start);
 
+    console.log("Start date (local):", start);
+    console.log("End date (local):", end);
+
     while (current < end) {
-      const dateStr = current.toISOString().split('T')[0];
-      if (isDateUnavailable(dateStr)) return true;
+      const dateStr = formatLocalDate(current);
+      const isUnavailable = unavailableDates.includes(dateStr);
+      console.log("Checking date:", dateStr, "- Is unavailable?", isUnavailable);
+
+      if (isUnavailable) {
+        console.log("❌ FOUND UNAVAILABLE DATE:", dateStr);
+        return true;
+      }
       current.setDate(current.getDate() + 1);
     }
 
+    console.log("✅ All dates are available");
     return false;
   };
 
   const nights = nightsBetween(checkIn, checkOut);
   const price = computePrice(unit, nights, guests, false);
   const overCapacity = suggestsWholeHouse(unit, guests);
-  const canContinue = nights > 0 && guests >= 1 && !hasUnavailableDateInRange();
   const hasInvalidRange = checkIn && checkOut && hasUnavailableDateInRange();
+  const canContinue = nights > 0 && guests >= 1 && !hasInvalidRange;
+
+  console.log("Render state - nights:", nights, "hasInvalidRange:", hasInvalidRange, "canContinue:", canContinue);
 
   return (
     <div className="mx-auto max-w-lg px-5 pb-28 pt-5 sm:px-0">
@@ -106,8 +133,14 @@ export function DatesStep({
       </div>
 
       {error && (
-        <div className="mb-4 rounded-2xl border border-clay bg-clay/10 p-3.5">
-          <p className="text-sm text-clay">{error}</p>
+        <div className="mb-3 rounded-lg border border-red-300 bg-red-50 p-3">
+          <p className="text-xs text-red-700">{error}</p>
+        </div>
+      )}
+
+      {loading && (
+        <div className="mb-3 rounded-lg border border-blue-300 bg-blue-50 p-3">
+          <p className="text-xs text-blue-700">Loading availability...</p>
         </div>
       )}
 
@@ -139,17 +172,13 @@ export function DatesStep({
           </label>
         </div>
 
-        {loading && (
-          <p className="mt-2 text-xs text-ink/50">Loading availability...</p>
-        )}
-
         {checkIn && checkOut && nights <= 0 && (
-          <p className="mt-2 text-xs text-clay">Check-out must be after check-in.</p>
+          <p className="mt-2 text-xs text-red-600">Check-out must be after check-in.</p>
         )}
 
         {hasInvalidRange && (
-          <p className="mt-2 text-xs text-clay">
-            ⚠️ Some dates in your range are not available. Please select different dates.
+          <p className="mt-2 text-xs text-red-600">
+            ⚠️ Some dates are not available. Please select different dates.
           </p>
         )}
       </div>
@@ -174,11 +203,11 @@ export function DatesStep({
         <div className="mt-3 flex gap-2.5 rounded-2xl border border-[#EFCB98] bg-ochre-soft p-3.5">
           <AlertIcon width={17} height={17} className="mt-0.5 flex-none text-ochre" />
           <p className="text-[12.5px] leading-relaxed text-[#7A5322]">
-            {guests} guests is over {unit.name}&apos;s limit of {unit.maxGuests}. Consider{" "}
+            {guests} guests exceeds {unit.name}&apos;s limit of {unit.maxGuests}. Consider{" "}
             <Link href="/units/whole-house" className="font-semibold text-ochre">
               Whole House
-            </Link>{" "}
-            instead.
+            </Link>
+            .
           </p>
         </div>
       )}
