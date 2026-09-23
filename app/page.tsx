@@ -28,7 +28,7 @@ export default function HomePage() {
       >
         <div className="absolute inset-0 bg-black/15" />
         <div className="relative font-display text-2xl font-medium leading-tight text-white sm:text-3xl">
-          Your island escape
+          Your Island Escape
           <br />
           in Camiguin
         </div>
