@@ -8,6 +8,20 @@ import { AlertIcon, ChevronLeftIcon } from "@/components/Icons";
 import { GuestStepper } from "./GuestStepper";
 import { PriceSummary } from "./PriceSummary";
 
+// Helper function to parse date string (YYYY-MM-DD) in local timezone
+function parseLocalDate(dateStr: string): Date {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+
+// Helper function to format date to YYYY-MM-DD in local timezone
+function formatLocalDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 export function DatesStep({
   unit,
   checkIn,
@@ -70,18 +84,20 @@ export function DatesStep({
     console.log("checkOut:", checkOut);
     console.log("unavailableDates array:", unavailableDates);
 
-    const start = new Date(checkIn);
-    const end = new Date(checkOut);
+    // Parse dates in local timezone
+    const start = parseLocalDate(checkIn);
+    const end = parseLocalDate(checkOut);
     const current = new Date(start);
 
-    console.log("Start date:", start);
-    console.log("End date:", end);
+    console.log("Start date (local):", start);
+    console.log("End date (local):", end);
 
     while (current < end) {
-      const dateStr = current.toISOString().split('T')[0];
-      console.log("Checking date:", dateStr, "- Is unavailable?", unavailableDates.includes(dateStr));
+      const dateStr = formatLocalDate(current);
+      const isUnavailable = unavailableDates.includes(dateStr);
+      console.log("Checking date:", dateStr, "- Is unavailable?", isUnavailable);
       
-      if (unavailableDates.includes(dateStr)) {
+      if (isUnavailable) {
         console.log("❌ FOUND UNAVAILABLE DATE:", dateStr);
         return true;
       }
