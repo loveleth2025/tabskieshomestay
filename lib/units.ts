@@ -20,6 +20,13 @@ export interface Unit {
   // Path under /public — drop the actual photo file there with this exact
   // name and it will show up on the home page and the unit detail page.
   heroImage: string;
+  // Extra photos for the unit detail page's scrollable gallery, shown below
+  // the hero image. Paths that don't exist yet under /public are silently
+  // skipped (see publicFileExists in lib/media.ts) — so it's safe to list
+  // filenames here ahead of actually adding the photos; each one appears on
+  // its own the moment a matching file is dropped into /public and the site
+  // redeploys.
+  gallery?: string[];
 }
 
 // Business rules locked in for Tabskies OS: three bookable inventory items.
@@ -34,7 +41,7 @@ export const UNITS: Record<UnitSlug, Unit> = {
       "The Bamboo Unit offers a bamboo native-inspired vibe with a refreshing ocean breeze, paired with the comfort of modern living. Comes with a kitchenette, hot and cold shower, air conditioning, and solar-powered Starlink Wi-Fi with balcony.",
     ratePerNight: 3000,
     maxGuests: 6,
-    bedrooms: 2,
+    bedrooms: 1,
     bathrooms: 1,
     amenities: [
       "Wi-Fi",
@@ -44,6 +51,13 @@ export const UNITS: Record<UnitSlug, Unit> = {
       "Hot & cold shower",
     ],
     heroImage: "/units/bamboo-unit.jpg",
+    gallery: [
+      "/units/bamboo-unit-2.jpg",
+      "/units/bamboo-unit-3.jpg",
+      "/units/bamboo-unit-4.jpg",
+      "/units/bamboo-unit-5.jpg",
+      "/units/bamboo-unit-6.jpg",
+    ],
   },
   "lower-unit": {
     slug: "lower-unit",
@@ -57,7 +71,7 @@ export const UNITS: Record<UnitSlug, Unit> = {
     extraGuestFee: 350,
     bedrooms: 1,
     bathrooms: 1,
-        amenities: ["Wi-Fi", "Kitchenette", "Outdoor dining", "Family room"],
+    amenities: ["Wi-Fi", "Kitchenette", "Outdoor dining", "Family room"],
     heroImage: "/units/lower-unit.png",
     gallery: [
       "/units/lower-unit-2.jpg",
