@@ -57,8 +57,15 @@ export const UNITS: Record<UnitSlug, Unit> = {
     extraGuestFee: 350,
     bedrooms: 1,
     bathrooms: 1,
-    amenities: ["Wi-Fi", "Kitchenette", "Outdoor dining", "Family room"],
+        amenities: ["Wi-Fi", "Kitchenette", "Outdoor dining", "Family room"],
     heroImage: "/units/lower-unit.png",
+    gallery: [
+      "/units/lower-unit-2.jpg",
+      "/units/lower-unit-3.jpg",
+      "/units/lower-unit-4.jpg",
+      "/units/lower-unit-5.jpg",
+      "/units/lower-unit-6.jpg",
+    ],
   },
   "whole-house": {
     slug: "whole-house",
@@ -68,7 +75,7 @@ export const UNITS: Record<UnitSlug, Unit> = {
       "Discover our home's distinctive blend of a bamboo-inspired upper unit and modern simplicity in the lower unit. A brief 3-to-5-minute stroll immerses you in the vibrant community — visit the public market, or watch stunning sunsets while boating in summer. Unwind amidst Camiguin Island's natural splendor, with emergency solar-powered light bulbs and internet connection throughout.",
     ratePerNight: 6000,
     maxGuests: 14,
-    bedrooms: 3,
+    bedrooms: 2,
     bathrooms: 2,
     amenities: [
       "Wi-Fi",
