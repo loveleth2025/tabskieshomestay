@@ -2,8 +2,20 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://tabskieshomestay.vercel.app"),
   title: "Tabskie's Homestay and Travel",
   description: "Book Bamboo Unit, Lower Unit, or the Whole House in Camiguin.",
+  openGraph: {
+    title: "Tabskie's Homestay and Travel",
+    description: "Book Bamboo Unit, Lower Unit, or the Whole House in Camiguin.",
+    url: "https://tabskieshomestay.vercel.app",
+    siteName: "Tabskie's Homestay and Travel",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Tabskie's Homestay and Travel",
+    description: "Book Bamboo Unit, Lower Unit, or the Whole House in Camiguin.",
+  },
 };
 
 export default function RootLayout({
